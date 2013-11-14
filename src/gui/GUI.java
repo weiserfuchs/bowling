@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -528,8 +529,9 @@ public class GUI extends JFrame {
 		txt_name.setBounds(6, 16, 110, 30);
 		txt_name.setColumns(10);
 		
-		btnNameHinzufuegen = new JButton("Name Hinzufuegen");
-		btnNameHinzufuegen.setBounds(116, 16, 140, 30);
+		btnNameHinzufuegen = new JButton("");
+		btnNameHinzufuegen.setIcon(new ImageIcon(GUI.class.getResource("/ressource/icon_add.png")));
+		btnNameHinzufuegen.setBounds(116, 16, 40, 30);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(6, 51, 250, 140);
@@ -597,6 +599,39 @@ public class GUI extends JFrame {
 		anz_panelNameList.add(scrollPane);
 		optionPane.add(anz_panelFile);
 		optionPane.add(anz_panelNameList);
+		
+		JButton btnBearbeiten = new JButton("");
+		btnBearbeiten.setIcon(new ImageIcon(GUI.class.getResource("/ressource/edit-icon.png")));
+		btnBearbeiten.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if( anz_nameList.getSelectedValue() != null){
+					String selectedValue = anz_nameList.getSelectedValue();
+					txt_name.setText(selectedValue);
+					nameList.remove(selectedValue);
+					anz_nameList.setListData(getStringArray(nameList));
+					comboBox.removeItem(selectedValue);
+				}
+			}
+		});
+		btnBearbeiten.setBounds(166, 16, 40, 30);
+		anz_panelNameList.add(btnBearbeiten);
+		
+		JButton btnLoeschen = new JButton("");
+		btnLoeschen.setIcon(new ImageIcon(GUI.class.getResource("/ressource/icon14.png")));
+		btnLoeschen.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if( anz_nameList.getSelectedValue() != null){
+					String selectedValue = anz_nameList.getSelectedValue();
+					nameList.remove(selectedValue);
+					anz_nameList.setListData(getStringArray(nameList));
+					comboBox.removeItem(selectedValue);
+				}
+			}
+		});
+		btnLoeschen.setBounds(216, 16, 40, 30);
+		anz_panelNameList.add(btnLoeschen);
 		
 		contentPane.add(tabbedPane);
 		contentPane.add(lbl_Status);
@@ -893,49 +928,4 @@ public class GUI extends JFrame {
 		text_Field.setEditable(false);
 		text_Field.setText("");
 	}
-	
-//	private void loadConfig() {
-//		File file = new File(cfgPath);
-//		if(file.exists() && file.isFile()){
-//			config = new Config(cfgPath);
-//			strServerPath = config.getProperty("ServerPfad").replaceAll("%S%", "//");
-//			strDropPath = config.getProperty("DropboxPfad").replaceAll("%S%", "//");
-//			setRam(config.getProperty("Ram"));
-//			jtxt_DropboxPath.setText(strDropPath);
-//			jtxt_ServerPath.setText(strServerPath);
-//			getContent();
-//		}
-//	}
-	
-//	private void saveConfig() {
-//		if(strDropPath != "" && strServerPath != "" && strRam != ""){
-//			strDropPath = strDropPath.replace("/", "//");
-//			strServerPath = strServerPath.replace("/", "//");
-//
-//			Writer fw;
-//			Writer bw = null;
-//			try {
-//				fw = new FileWriter(flcfg);
-//				bw = new BufferedWriter(fw);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//
-//			String strConfig = ("ServerPfad=" + strServerPath + "\n"+ "DropboxPfad=" + strDropPath + "\n" + "Ram=" + strRam).replaceAll("//", "%S%");
-//
-//			try {
-//				bw.write(strConfig);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}finally{
-//				try {
-//					bw.flush();
-//					bw.close();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//			System.out.println(strConfig);
-//		}
-//	}
 }
