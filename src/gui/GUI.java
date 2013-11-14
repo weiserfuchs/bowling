@@ -5,8 +5,13 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +94,8 @@ public class GUI extends JFrame {
 	private JButton				btnNameHinzufuegen;
 	private JPanel				anz_panelNameList;
 
-	private String				cfgPath			= System.getenv("appdata");
+//	private String				cfgPath			= "C:\\Temp\\";
+	private String				cfgPath			= System.getenv("appdata") + "\\bowling.cfg";
 	private Config				config			= null;
 	private File				flcfg			= new File(cfgPath);
 
@@ -98,6 +104,12 @@ public class GUI extends JFrame {
 	 * @param cont 
 	 */
 	public GUI() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				saveConfig();
+			}
+		});
 		setTitle("Bowling");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 724, 600);
@@ -636,6 +648,8 @@ public class GUI extends JFrame {
 		contentPane.add(tabbedPane);
 		contentPane.add(lbl_Status);
 		contentPane.add(lbl_anz_Status);
+		
+		loadConfig();
 	}
 
 	private void exportieren() throws IOException, RowsExceededException, WriteException {
@@ -928,4 +942,71 @@ public class GUI extends JFrame {
 		text_Field.setEditable(false);
 		text_Field.setText("");
 	}
+	
+	private void loadConfig() {
+		File file = new File(cfgPath);
+		if(file.exists() && file.isFile()){
+			config = new Config(cfgPath);
+			lbl_Pfad.setText(config.getProperty("ExcelPfad"));
+			nameList.addAll(toList(config.getProperty("NamensListe")));
+			if(nameList.size() > 0){
+				anz_nameList.setListData(getStringArray(nameList));
+			}
+		}
+	}
+
+	private List<String> toList(String property) {
+		List<String> strings = new ArrayList<String>();
+		
+		String[] s = property.split("|");
+		
+		for (int i = 0; i < s.length; i++) {
+			strings.add(s[i]);
+		}
+		
+		
+		return strings;
+	}
+
+	private void saveConfig() {
+		Writer fw;
+		Writer bw = null;
+		try {
+			fw = new FileWriter(flcfg);
+			bw = new BufferedWriter(fw);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		String strConfig = "ExcelPfad=" + lbl_Pfad.getText() + "\n"+ "NamensListe=" + getString(nameList);
+
+		try {
+			bw.write(strConfig);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				bw.flush();
+				bw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println(strConfig);
+	}
+
+	private String getString(List<String> nameList2) {
+		String strList = "";
+		
+		for(String str: nameList2){
+			strList += str + "|";
+		}
+		
+		if(strList.endsWith("|")){
+			strList = strList.substring(0, strList.length()-1);
+		}
+		
+		return strList;
+	}
+
 }
