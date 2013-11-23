@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -35,7 +36,9 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import jxl.Sheet;
 import jxl.Workbook;
+import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
@@ -898,7 +901,6 @@ public class GUI extends JFrame {
 
 	private File getFile() {
 		JFileChooser fc = new JFileChooser();
-		//		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fc.setDialogTitle("Datei auswählen");
 		int indicator = fc.showOpenDialog(null);
 		if (indicator == JFileChooser.CANCEL_OPTION
@@ -910,6 +912,7 @@ public class GUI extends JFrame {
 			return fc.getSelectedFile();
 		}
 	}
+	
 	private List<JTextField> getTextFelder(){
 		List<JTextField> fields = new ArrayList<JTextField>();
 		fields.add(txt_w11);
@@ -948,20 +951,52 @@ public class GUI extends JFrame {
 		if(file.exists() && file.isFile()){
 			config = new Config(cfgPath);
 			lbl_Pfad.setText(config.getProperty("ExcelPfad"));
+			excelFile = new File(lbl_Pfad.getText());
 			nameList.addAll(toList(config.getProperty("NamensListe")));
 			if(nameList.size() > 0){
 				anz_nameList.setListData(getStringArray(nameList));
+				for(String item : nameList){
+					comboBox.addItem(item);
+				}
 			}
 		}
+		if(excelFile.exists()){
+			importExcelDoc();
+		}
+	}
+
+	private void importExcelDoc() {
+		Workbook workbook = null;
+		try {
+			workbook = Workbook.getWorkbook(excelFile);
+		} catch (BiffException | IOException e) {
+			e.printStackTrace();
+		}
+		Sheet sheet = workbook.getSheet(0);
+		List<Sheet> list = toList(workbook.getSheets());
+		
+		for(Sheet s: list){
+			s.getName();
+			s.getRows();
+		}
+		
+	}
+
+	private List<Sheet> toList(Sheet[] sheets) {
+		List<Sheet> list = new ArrayList<Sheet>();
+		
+		for (int i = 0; i < sheets.length; i++) {
+			list.add(sheets[i]);
+		}		
+		return list;
 	}
 
 	private List<String> toList(String property) {
 		List<String> strings = new ArrayList<String>();
+		StringTokenizer tokenizer = new StringTokenizer(property, "|");
 		
-		String[] s = property.split("|");
-		
-		for (int i = 0; i < s.length; i++) {
-			strings.add(s[i]);
+		while(tokenizer.hasMoreElements()){
+			strings.add((String)tokenizer.nextElement());
 		}
 		
 		
@@ -978,7 +1013,7 @@ public class GUI extends JFrame {
 			e.printStackTrace();
 		}
 
-		String strConfig = "ExcelPfad=" + lbl_Pfad.getText() + "\n"+ "NamensListe=" + getString(nameList);
+		String strConfig = "ExcelPfad=" + lbl_Pfad.getText().replace("\\", "\\\\") + "\n"+ "NamensListe=" + getString(nameList);
 
 		try {
 			bw.write(strConfig);
