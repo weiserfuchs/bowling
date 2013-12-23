@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,8 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
@@ -78,13 +81,12 @@ public class GUI extends JFrame {
 	private JTextField			txt_w101;
 	private JTextField			txt_w102;
 	private JTextField			txt_w103;
+	private JTextField			txt_Date;
 
 	private JComboBox<String>	comboBox		= new JComboBox<String>();
 
 	private JList<Score>		anz_scoreList	= new JList<Score>();
 	private JList<String>		anz_nameList	= new JList<String>();
-
-	private JLabel				lbl_sumGesamt	= new JLabel();
 	private JLabel				lbl_Status		= new JLabel();
 	private JLabel				lbl_Pfad		= new JLabel();
 
@@ -95,6 +97,14 @@ public class GUI extends JFrame {
 	private File				excelFile;
 	private JTextField			txt_name;
 	private JButton				btnNameHinzufuegen;
+	private JButton				btnHinzufuegen;
+	private JButton				btnExportieren;
+	private JButton				btnAuswaehlen;
+	private JButton				btnAendern;
+	private JButton				btnBearbeiten;
+	private JButton				btnNamenLoeschen;
+	private JButton				btnLoeschen;
+
 	private JPanel				anz_panelNameList;
 
 	// private String cfgPath = "C:\\Temp\\";
@@ -116,27 +126,254 @@ public class GUI extends JFrame {
 		});
 		setTitle("Bowling");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 724, 600);
+		setBounds(100, 100, 900, 680);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.setBounds(0, 0, 708, 519);
+		tabbedPane.setBounds(0, 0, 874, 589);
 		contentPane.setLayout(null);
 
 		panel = new JPanel();
-		tabbedPane.addTab("Allgemein", null, panel, null);
 		panel.setLayout(null);
 
 		comboBox.setBounds(20, 60, 200, 70);
 
-		JButton btnHinzufuegen = new JButton("Hinzufuegen");
+		initializeTextFields();
+		JScrollPane jScrollPane = new JScrollPane();
+		jScrollPane.setBounds(4, 148, 855, 402);
+		jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		jScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		jScrollPane.setViewportView(anz_scoreList);
+		anz_scoreList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		optionPane.setBounds(10, 10, 688, 510);
+		optionPane.setLayout(null);
+
+		JPanel anz_panelFile = new JPanel();
+		anz_panelFile.setBorder(new TitledBorder(null, "Excel Datei", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		anz_panelFile.setBounds(6, 11, 662, 53);
+		anz_panelFile.setLayout(null);
+		lbl_Pfad.setBounds(10, 16, 506, 30);
+
+		lbl_Pfad.setBackground(Color.WHITE);
+		lbl_Pfad.setOpaque(true);
+
+		anz_panelNameList = new JPanel();
+		anz_panelNameList.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Namens Liste", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		anz_panelNameList.setBounds(6, 75, 262, 198);
+		anz_panelNameList.setLayout(null);
+
+		txt_name = new JTextField();
+		txt_name.setBounds(6, 16, 110, 30);
+		txt_name.setColumns(10);
+
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(6, 51, 250, 140);
+
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+		scrollPane.setViewportView(anz_nameList);
+
+		initializeButtons();
+
+		lbl_Status.setBounds(50, 600, 824, 30);
+
+		JLabel lbl_anz_Status = new JLabel("Status");
+		lbl_anz_Status.setBounds(0, 600, 50, 30);
+		lbl_anz_Status.setHorizontalAlignment(SwingConstants.CENTER);
+
+		panel.add(jScrollPane);
+		panel.add(comboBox);
+		panel.add(btnHinzufuegen);
+		panel.add(btnAendern);
+		panel.add(btnLoeschen);
+		panel.add(btnExportieren);
+		panel.add(txt_w11);
+		panel.add(txt_w12);
+		panel.add(txt_w21);
+		panel.add(txt_w22);
+		panel.add(txt_w31);
+		panel.add(txt_w32);
+		panel.add(txt_w41);
+		panel.add(txt_w42);
+		panel.add(txt_w51);
+		panel.add(txt_w52);
+		panel.add(txt_w61);
+		panel.add(txt_w62);
+		panel.add(txt_w71);
+		panel.add(txt_w72);
+		panel.add(txt_w81);
+		panel.add(txt_w82);
+		panel.add(txt_w91);
+		panel.add(txt_w92);
+		panel.add(txt_w101);
+		panel.add(txt_w102);
+		panel.add(txt_w103);
+		panel.add(txt_Date);
+
+		anz_panelFile.add(btnAuswaehlen);
+		anz_panelFile.add(lbl_Pfad);
+
+		anz_panelNameList.add(txt_name);
+		anz_panelNameList.add(btnNameHinzufuegen);
+		anz_panelNameList.add(scrollPane);
+		anz_panelNameList.add(btnBearbeiten);
+		anz_panelNameList.add(btnNamenLoeschen);
+
+		optionPane.add(anz_panelFile);
+		optionPane.add(anz_panelNameList);
+
+		tabbedPane.addTab("Allgemein", panel);
+		tabbedPane.addTab("Optionen", optionPane);
+
+		contentPane.add(tabbedPane);
+		contentPane.add(lbl_Status);
+		contentPane.add(lbl_anz_Status);
+
+		loadConfig();
+	}
+
+	private void initializeButtons() {
+		btnHinzufuegen = new JButton("Hinzufuegen");
 		btnHinzufuegen.setBounds(255, 60, 120, 70);
 
-		JButton btnExportieren = new JButton("Exportieren");
-		btnExportieren.setBounds(550, 60, 120, 70);
+		btnExportieren = new JButton("Exportieren");
+		btnExportieren.setBounds(690, 60, 126, 70);
 
+		btnAuswaehlen = new JButton("Auswaehlen");
+		btnAuswaehlen.setBounds(526, 16, 130, 30);
+
+		btnNameHinzufuegen = new JButton("");
+		btnNameHinzufuegen.setIcon(new ImageIcon(GUI.class.getResource("/ressource/icon_add.png")));
+		btnNameHinzufuegen.setBounds(116, 16, 40, 30);
+
+		btnAendern = new JButton("Aendern");
+		btnAendern.setBounds(400, 60, 120, 70);
+
+		btnBearbeiten = new JButton("");
+		btnBearbeiten.setIcon(new ImageIcon(GUI.class.getResource("/ressource/edit-icon.png")));
+		btnBearbeiten.setBounds(166, 16, 40, 30);
+
+		btnNamenLoeschen = new JButton("");
+		btnNamenLoeschen.setIcon(new ImageIcon(GUI.class.getResource("/ressource/icon14.png")));
+		btnNamenLoeschen.setBounds(216, 16, 40, 30);
+
+		btnLoeschen = new JButton("Loeschen");
+		btnLoeschen.setBounds(545, 60, 120, 70);
+
+		btnBearbeiten.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if (anz_nameList.getSelectedValue() != null) {
+					String selectedValue = anz_nameList.getSelectedValue();
+					txt_name.setText(selectedValue);
+					nameList.remove(selectedValue);
+					anz_nameList.setListData(getStringArray(nameList));
+					comboBox.removeItem(selectedValue);
+				}
+			}
+		});
+
+		btnNamenLoeschen.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if (anz_nameList.getSelectedValue() != null) {
+					String selectedValue = anz_nameList.getSelectedValue();
+					nameList.remove(selectedValue);
+					anz_nameList.setListData(getStringArray(nameList));
+					comboBox.removeItem(selectedValue);
+				}
+			}
+		});
+
+		btnAendern.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				aendern();
+			}
+		});
+
+		btnExportieren.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if (scoreList.size() > 0) {
+					try {
+						exportieren();
+						updateStatus("Export erfolgreich!", null);
+					} catch (IOException | WriteException e) {
+						updateStatus("Excel Pfad nicht gefunden!", null);
+					}
+				}
+			}
+		});
+
+		btnHinzufuegen.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				hinzufuegen();
+
+				for (JTextField txtField : getTextFelder()) {
+					txtField.setText("");
+					txtField.setEditable(true);
+					txtField.setEnabled(true);
+				}
+//				lbl_sumGesamt.setText("");
+
+			}
+		});
+
+		btnAuswaehlen.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+				excelFile = getFile();
+				if (excelFile != null) {
+					lbl_Pfad.setText(excelFile.getAbsolutePath());
+					updateStatus("Dateipfad erfolgreich ausgewählt", null);
+				} else {
+					lbl_Pfad.setText("");
+					updateStatus("Falschen Dateipfad ausgewählt", null);
+				}
+			}
+		});
+
+		btnNameHinzufuegen.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				String text = txt_name.getText();
+				if (text.length() > 0 && !text.equals(" ")) {
+					String name = text;
+					if (!nameList.contains(name)) {
+						nameList.add(name);
+						anz_nameList.setListData(getStringArray(nameList));
+						comboBox.addItem(name);
+						txt_name.setText("");
+						updateStatus("Name Hinzugefügt!", null);
+					} else {
+						txt_name.setText("");
+						updateStatus("Name schon vorhanden!", null);
+					}
+				}
+			}
+		});
+		
+		btnLoeschen.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				Score selectedValue = anz_scoreList.getSelectedValue();
+				
+				if(selectedValue != null){
+					scoreList.remove(selectedValue);
+					anz_scoreList.setListData(getScoreArray(scoreList));
+				}
+			}
+		});
+
+	}
+
+	private void initializeTextFields() {
 		txt_w11 = new JTextField();
 		txt_w11.setBounds(5, 5, 30, 30);
 		txt_w11.addFocusListener(new FocusAdapter() {
@@ -465,213 +702,34 @@ public class GUI extends JFrame {
 			}
 		});
 		txt_w103.setColumns(10);
-		lbl_sumGesamt.setBounds(272, 148, 0, 0);
-		JScrollPane jScrollPane = new JScrollPane();
-		jScrollPane.setBounds(4, 148, 699, 343);
-		jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		jScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		jScrollPane.setViewportView(anz_scoreList);
-		anz_scoreList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		btnExportieren.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				if (scoreList.size() > 0) {
-					try {
-						exportieren();
-
-						updateStatus("Export erfolgreich!", null);
-					} catch (IOException e) {
-						e.printStackTrace();
-					} catch (RowsExceededException e) {
-						e.printStackTrace();
-					} catch (WriteException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
-		btnHinzufuegen.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				hinzufuegen();
-
-				for (JTextField txtField : getTextFelder()) {
-					txtField.setText("");
-					txtField.setEditable(true);
-					txtField.setEnabled(true);
-				}
-				lbl_sumGesamt.setText("");
-
-			}
-		});
-		tabbedPane.addTab("Optionen", optionPane);
-
-		optionPane.setBounds(10, 10, 688, 510);
-		optionPane.setLayout(null);
-
-		JPanel anz_panelFile = new JPanel();
-		anz_panelFile.setBorder(new TitledBorder(null, "Excel Datei", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		anz_panelFile.setBounds(6, 11, 662, 53);
-		anz_panelFile.setLayout(null);
-		lbl_Pfad.setBounds(10, 16, 506, 30);
-
-		lbl_Pfad.setBackground(Color.WHITE);
-		lbl_Pfad.setOpaque(true);
-
-		JButton btnAuswaehlen = new JButton("Auswaehlen");
-		btnAuswaehlen.setBounds(526, 16, 130, 30);
-
-		btnAuswaehlen.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-
-				excelFile = getFile();
-				if (excelFile != null) {
-					lbl_Pfad.setText(excelFile.getAbsolutePath());
-					updateStatus("Dateipfad erfolgreich ausgewählt", null);
-				} else {
-					lbl_Pfad.setText("");
-					updateStatus("Falschen Dateipfad ausgewählt", null);
-				}
-			}
-		});
-
-		anz_panelNameList = new JPanel();
-		anz_panelNameList.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Namens Liste", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		anz_panelNameList.setBounds(6, 75, 262, 198);
-		anz_panelNameList.setLayout(null);
-
-		txt_name = new JTextField();
-		txt_name.setBounds(6, 16, 110, 30);
-		txt_name.setColumns(10);
-
-		btnNameHinzufuegen = new JButton("");
-		btnNameHinzufuegen.setIcon(new ImageIcon(GUI.class.getResource("/ressource/icon_add.png")));
-		btnNameHinzufuegen.setBounds(116, 16, 40, 30);
-
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(6, 51, 250, 140);
-
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
-		scrollPane.setViewportView(anz_nameList);
-		btnNameHinzufuegen.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				String text = txt_name.getText();
-				if (text.length() > 0 && !text.equals(" ")) {
-					String name = text;
-					if (!nameList.contains(name)) {
-						nameList.add(name);
-						anz_nameList.setListData(getStringArray(nameList));
-						comboBox.addItem(name);
-						txt_name.setText("");
-						updateStatus("Name Hinzugefügt!", null);
-					} else {
-						txt_name.setText("");
-						updateStatus("Name schon vorhanden!", null);
-					}
-				}
-			}
-		});
-
-		lbl_Status.setBounds(54, 530, 654, 30);
-
-		JLabel lbl_anz_Status = new JLabel("Status");
-		lbl_anz_Status.setBounds(0, 530, 62, 30);
-		lbl_anz_Status.setHorizontalAlignment(SwingConstants.CENTER);
-
-		panel.add(comboBox);
-		panel.add(btnHinzufuegen);
-		panel.add(btnExportieren);
-		panel.add(txt_w11);
-		panel.add(txt_w12);
-		panel.add(txt_w21);
-		panel.add(txt_w22);
-		panel.add(txt_w31);
-		panel.add(txt_w32);
-		panel.add(txt_w41);
-		panel.add(txt_w42);
-		panel.add(txt_w51);
-		panel.add(txt_w52);
-		panel.add(txt_w61);
-		panel.add(txt_w62);
-		panel.add(txt_w71);
-		panel.add(txt_w72);
-		panel.add(txt_w81);
-		panel.add(txt_w82);
-		panel.add(txt_w91);
-		panel.add(txt_w92);
-		panel.add(txt_w101);
-		panel.add(txt_w102);
-		panel.add(txt_w103);
-		panel.add(lbl_sumGesamt);
-		panel.add(jScrollPane);
 		
-		JButton btnAendern = new JButton("Aendern");
-		btnAendern.addMouseListener(new MouseAdapter() {
+		txt_Date = new JTextField();
+		txt_Date.setBackground(new Color(255, 255, 255));
+		txt_Date.setEditable(false);
+		txt_Date.setBounds(690, 5, 126, 30);
+		txt_Date.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				aendern();
+				txt_Date.setText(getStringDate());
+				
 			}
 		});
-		btnAendern.setBounds(400, 60, 120, 70);
-		panel.add(btnAendern);
+		txt_Date.setColumns(10);
+	}
 
-		anz_panelFile.add(btnAuswaehlen);
-		anz_panelFile.add(lbl_Pfad);
-		anz_panelNameList.add(txt_name);
-		anz_panelNameList.add(btnNameHinzufuegen);
-		anz_panelNameList.add(scrollPane);
-		optionPane.add(anz_panelFile);
-		optionPane.add(anz_panelNameList);
+	private String getStringDate() {
+		DateChooser chooser = new DateChooser(this);
+//		return chooser.select();
 
-		JButton btnBearbeiten = new JButton("");
-		btnBearbeiten.setIcon(new ImageIcon(GUI.class.getResource("/ressource/edit-icon.png")));
-		btnBearbeiten.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				if (anz_nameList.getSelectedValue() != null) {
-					String selectedValue = anz_nameList.getSelectedValue();
-					txt_name.setText(selectedValue);
-					nameList.remove(selectedValue);
-					anz_nameList.setListData(getStringArray(nameList));
-					comboBox.removeItem(selectedValue);
-				}
-			}
-		});
-		btnBearbeiten.setBounds(166, 16, 40, 30);
-		anz_panelNameList.add(btnBearbeiten);
-
-		JButton btnLoeschen = new JButton("");
-		btnLoeschen.setIcon(new ImageIcon(GUI.class.getResource("/ressource/icon14.png")));
-		btnLoeschen.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				if (anz_nameList.getSelectedValue() != null) {
-					String selectedValue = anz_nameList.getSelectedValue();
-					nameList.remove(selectedValue);
-					anz_nameList.setListData(getStringArray(nameList));
-					comboBox.removeItem(selectedValue);
-				}
-			}
-		});
-		btnLoeschen.setBounds(216, 16, 40, 30);
-		anz_panelNameList.add(btnLoeschen);
-
-		contentPane.add(tabbedPane);
-		contentPane.add(lbl_Status);
-		contentPane.add(lbl_anz_Status);
-
-		loadConfig();
+		return DateFormat.getInstance().format(chooser.select()).substring(0, 8);
 	}
 
 	private void aendern() {
 		Score selectedScore = anz_scoreList.getSelectedValue();
-		if(selectedScore != null){
-			
+		if (selectedScore != null) {
+
 			String name = selectedScore.getName();
-			if(!isNameinCBX(name)){
+			if (!isNameinCBX(name)) {
 				nameList.add(name);
 				anz_nameList.setListData(getStringArray(nameList));
 				comboBox.addItem(name);
@@ -699,49 +757,50 @@ public class GUI extends JFrame {
 			txt_w101.setText(selectedScore.getStr101());
 			txt_w102.setText(selectedScore.getStr102());
 			txt_w103.setText(selectedScore.getStr103());
-			
+
 			scoreList.remove(selectedScore);
 			anz_scoreList.setListData(getScoreArray(scoreList));
 		}
-		
-	}
 
-
-	private boolean isNameinCBX(String name) {
-		boolean exist = false;
-		for(int i=0; i < comboBox.getItemCount(); i++){
-			if(comboBox.getItemAt(i).equals(name)){
-				exist = true;
-			}
-		}
-		
-		return exist;
 	}
 
 	private void exportieren() throws IOException, RowsExceededException, WriteException {
+
 		Map<String, Integer> map = new HashMap<String, Integer>();
 		WritableWorkbook workbook = Workbook.createWorkbook(excelFile);
+		WritableFont arial10font = new WritableFont(WritableFont.ARIAL, 10);
+		WritableCellFormat arial10format = new WritableCellFormat(arial10font);
+		arial10format.setWrap(true);
+
 		for (Score sc : scoreList) {
+
 			WritableSheet sheet = workbook.getSheet(sc.getName());
+
 			if (sheet == null) {
+
 				sheet = workbook.createSheet(sc.getName(), 0);
 				map.put(sc.getName(), 0);
+
 			} else {
+
 				int value = map.get(sc.getName()) + 1;
+
 				map.remove(sc.getName());
 				map.put(sc.getName(), value);
+
 			}
 
 			List<String> labelList = sc.getList();
 			int strCounter = 0;
 			for (String str : labelList) {
-				Label label = new Label(strCounter, map.get(sc.getName()), str);
+
+				Label label = new Label(strCounter, map.get(sc.getName()), str, arial10format);
 				sheet.addCell(label);
 				strCounter++;
 			}
-			Label label = new Label(labelList.size(), map.get(sc.getName()), sc.getStrGesamt());
-			sheet.addCell(label);
 
+			Label label = new Label(labelList.size(), map.get(sc.getName()), sc.getStrGesamt(), arial10format);
+			sheet.addCell(label);
 		}
 
 		workbook.write();
@@ -751,12 +810,12 @@ public class GUI extends JFrame {
 	private void hinzufuegen() {
 		if (comboBox.getSelectedItem() != null) {
 			Score score;
-			if(sc.getStr61().length() > 0){
+			if (sc.getStr61().length() > 0) {
 				score = sc;
-			}else{
+			} else {
 				score = getScore();
 			}
-			
+
 			sc.setName(comboBox.getSelectedItem().toString());
 			Wurf w1 = wurfZusRechnen(score.getStr11(), score.getStr12(), "", "");
 			Wurf w2 = wurfZusRechnen(score.getStr21(), score.getStr22(), score.getStr11(), score.getStr12());
@@ -771,64 +830,12 @@ public class GUI extends JFrame {
 
 			int summeGesamt = w1.getSumme() + w2.getSumme() + w3.getSumme() + w4.getSumme() + w5.getSumme() + w6.getSumme() + w7.getSumme() + w8.getSumme() + w9.getSumme() + w10.getSumme();
 
-			lbl_sumGesamt.setText(String.valueOf(summeGesamt));
+//			lbl_sumGesamt.setText(String.valueOf(summeGesamt));
 
 			score.setStrGesamt(String.valueOf(summeGesamt));
 			scoreList.add(score);
 			anz_scoreList.setListData(getScoreArray(scoreList));
 		}
-	}
-
-	private Score getScore() {
-		Score sc = new Score();
-		
-		sc.setStr11(txt_w11.getText());
-		sc.setStr12(txt_w12.getText());
-		sc.setStr21(txt_w21.getText());
-		sc.setStr22(txt_w22.getText());
-		sc.setStr31(txt_w31.getText());
-		sc.setStr32(txt_w32.getText());
-		sc.setStr41(txt_w41.getText());
-		sc.setStr42(txt_w42.getText());
-		sc.setStr51(txt_w51.getText());
-		sc.setStr52(txt_w52.getText());
-		sc.setStr61(txt_w61.getText());
-		sc.setStr62(txt_w62.getText());
-		sc.setStr71(txt_w71.getText());
-		sc.setStr72(txt_w72.getText());
-		sc.setStr81(txt_w81.getText());
-		sc.setStr82(txt_w82.getText());
-		sc.setStr91(txt_w91.getText());
-		sc.setStr92(txt_w92.getText());
-		sc.setStr101(txt_w101.getText());
-		sc.setStr102(txt_w102.getText());
-		sc.setStr103(txt_w103.getText());
-
-		sc.setName(comboBox.getSelectedItem().toString());
-		
-		return sc;
-	}
-
-	private Score[] getScoreArray(List<Score> scores2) {
-		Score[] scs = new Score[scores2.size()];
-		int counter = 0;
-		for (Score s : scores2) {
-			scs[counter] = s;
-			counter++;
-		}
-
-		return scs;
-	}
-
-	private String[] getStringArray(List<String> strings) {
-		String[] stringArray = new String[strings.size()];
-		int counter = 0;
-		for (String s : strings) {
-			stringArray[counter] = s;
-			counter++;
-		}
-
-		return stringArray;
 	}
 
 	private Wurf wurfZusRechnenSpezial(String wert1, String wert2, String wert3, String wertV1, String wertV2) {
@@ -907,6 +914,12 @@ public class GUI extends JFrame {
 		}
 
 		return new Wurf(strike, spare, summe);
+	}
+
+	private void wurf2(JTextField text_Field) {
+		text_Field.setBackground(Color.WHITE);
+		text_Field.setEditable(false);
+		text_Field.setText("");
 	}
 
 	private void updateStatus(String status, JTextField textfield) {
@@ -995,6 +1008,186 @@ public class GUI extends JFrame {
 		}
 	}
 
+	private void importExcelDoc() {
+		Workbook workbook = null;
+		try {
+			workbook = Workbook.getWorkbook(excelFile);
+		} catch (BiffException | IOException e) {
+			excelFile = null;
+			lbl_Pfad.setText("");
+			return;
+		}
+
+		List<Sheet> list = toList(workbook.getSheets());
+		Score sc = new Score();
+		List<Score> scores = new ArrayList<Score>();
+		System.out.println("Try to Import.");
+
+		for (Sheet s : list) {
+			for (int i = 0; i < s.getRows(); i++) {
+				sc.setName(s.getName());
+				sc.setStr11(s.getRow(i)[0].getContents());
+				sc.setStr12(s.getRow(i)[1].getContents());
+				sc.setStr21(s.getRow(i)[2].getContents());
+				sc.setStr22(s.getRow(i)[3].getContents());
+				sc.setStr31(s.getRow(i)[4].getContents());
+				sc.setStr32(s.getRow(i)[5].getContents());
+				sc.setStr41(s.getRow(i)[6].getContents());
+				sc.setStr42(s.getRow(i)[7].getContents());
+				sc.setStr51(s.getRow(i)[8].getContents());
+				sc.setStr52(s.getRow(i)[9].getContents());
+				sc.setStr61(s.getRow(i)[10].getContents());
+				sc.setStr62(s.getRow(i)[11].getContents());
+				sc.setStr71(s.getRow(i)[12].getContents());
+				sc.setStr72(s.getRow(i)[13].getContents());
+				sc.setStr81(s.getRow(i)[14].getContents());
+				sc.setStr82(s.getRow(i)[15].getContents());
+				sc.setStr91(s.getRow(i)[16].getContents());
+				sc.setStr92(s.getRow(i)[17].getContents());
+				sc.setStr101(s.getRow(i)[18].getContents());
+				sc.setStr102(s.getRow(i)[19].getContents());
+				sc.setStr103(s.getRow(i)[20].getContents());
+				sc.setStrGesamt(s.getRow(i)[21].getContents());
+
+				System.out.println(sc.toString());
+
+				scores.add(sc);
+				scoreList.add(sc);
+				sc = new Score();
+			}
+		}
+		anz_scoreList.setListData(getScoreArray(scores));
+	}
+
+	private void loadConfig() {
+		File file = new File(cfgPath);
+		if (file.exists() && file.isFile()) {
+			config = new Config(cfgPath);
+			lbl_Pfad.setText(config.getProperty("ExcelPfad"));
+			excelFile = new File(lbl_Pfad.getText());
+			nameList.addAll(toList(config.getProperty("NamensListe")));
+			if (nameList.size() > 0) {
+				anz_nameList.setListData(getStringArray(nameList));
+				for (String item : nameList) {
+					comboBox.addItem(item);
+				}
+			}
+		}
+		if (excelFile.exists()) {
+			importExcelDoc();
+		}
+	}
+
+	private void saveConfig() {
+		Writer fw;
+		Writer bw = null;
+		try {
+			fw = new FileWriter(flcfg);
+			bw = new BufferedWriter(fw);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		String strConfig = "ExcelPfad=" + lbl_Pfad.getText().replace("\\", "\\\\") + "\n" + "NamensListe=" + getString(nameList);
+
+		try {
+			bw.write(strConfig);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				bw.flush();
+				bw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println(strConfig);
+	}
+
+	private List<Sheet> toList(Sheet[] sheets) {
+		List<Sheet> list = new ArrayList<Sheet>();
+
+		for (int i = 0; i < sheets.length; i++) {
+			list.add(sheets[i]);
+		}
+		return list;
+	}
+
+	private List<String> toList(String property) {
+		List<String> strings = new ArrayList<String>();
+		StringTokenizer tokenizer = new StringTokenizer(property, "|");
+
+		while (tokenizer.hasMoreElements()) {
+			strings.add((String) tokenizer.nextElement());
+		}
+
+		return strings;
+	}
+
+	private boolean isNameinCBX(String name) {
+		boolean exist = false;
+		for (int i = 0; i < comboBox.getItemCount(); i++) {
+			if (comboBox.getItemAt(i).equals(name)) {
+				exist = true;
+			}
+		}
+
+		return exist;
+	}
+
+	private Score getScore() {
+		Score sc = new Score();
+
+		sc.setStr11(txt_w11.getText());
+		sc.setStr12(txt_w12.getText());
+		sc.setStr21(txt_w21.getText());
+		sc.setStr22(txt_w22.getText());
+		sc.setStr31(txt_w31.getText());
+		sc.setStr32(txt_w32.getText());
+		sc.setStr41(txt_w41.getText());
+		sc.setStr42(txt_w42.getText());
+		sc.setStr51(txt_w51.getText());
+		sc.setStr52(txt_w52.getText());
+		sc.setStr61(txt_w61.getText());
+		sc.setStr62(txt_w62.getText());
+		sc.setStr71(txt_w71.getText());
+		sc.setStr72(txt_w72.getText());
+		sc.setStr81(txt_w81.getText());
+		sc.setStr82(txt_w82.getText());
+		sc.setStr91(txt_w91.getText());
+		sc.setStr92(txt_w92.getText());
+		sc.setStr101(txt_w101.getText());
+		sc.setStr102(txt_w102.getText());
+		sc.setStr103(txt_w103.getText());
+
+		sc.setName(comboBox.getSelectedItem().toString());
+
+		return sc;
+	}
+
+	private Score[] getScoreArray(List<Score> scores2) {
+		Score[] scs = new Score[scores2.size()];
+		int counter = 0;
+		for (Score s : scores2) {
+			scs[counter] = s;
+			counter++;
+		}
+
+		return scs;
+	}
+
+	private String[] getStringArray(List<String> strings) {
+		String[] stringArray = new String[strings.size()];
+		int counter = 0;
+		for (String s : strings) {
+			stringArray[counter] = s;
+			counter++;
+		}
+
+		return stringArray;
+	}
+
 	private File getFile() {
 		JFileChooser fc = new JFileChooser();
 		fc.setDialogTitle("Datei auswählen");
@@ -1033,127 +1226,6 @@ public class GUI extends JFrame {
 		fields.add(txt_w103);
 
 		return fields;
-	}
-
-	private void wurf2(JTextField text_Field) {
-		text_Field.setBackground(Color.WHITE);
-		text_Field.setEditable(false);
-		text_Field.setText("");
-	}
-
-	private void loadConfig() {
-		File file = new File(cfgPath);
-		if (file.exists() && file.isFile()) {
-			config = new Config(cfgPath);
-			lbl_Pfad.setText(config.getProperty("ExcelPfad"));
-			excelFile = new File(lbl_Pfad.getText());
-			nameList.addAll(toList(config.getProperty("NamensListe")));
-			if (nameList.size() > 0) {
-				anz_nameList.setListData(getStringArray(nameList));
-				for (String item : nameList) {
-					comboBox.addItem(item);
-				}
-			}
-		}
-		if (excelFile.exists()) {
-			importExcelDoc();
-		}
-	}
-
-	private void importExcelDoc() {
-		Workbook workbook = null;
-		try {
-			workbook = Workbook.getWorkbook(excelFile);
-		} catch (BiffException | IOException e) {
-			e.printStackTrace();
-		}
-
-		List<Sheet> list = toList(workbook.getSheets());
-		Score sc = new Score();
-		List<Score> scores = new ArrayList<Score>();
-		System.out.println("Try to Import.");
-		
-		for (Sheet s : list) {
-			for(int i=0; i < s.getRows();i++){
-				sc.setName(s.getName());
-				sc.setStr11(s.getRow(i)[0].getContents());
-				sc.setStr12(s.getRow(i)[1].getContents());
-				sc.setStr21(s.getRow(i)[2].getContents());
-				sc.setStr22(s.getRow(i)[3].getContents());
-				sc.setStr31(s.getRow(i)[4].getContents());
-				sc.setStr32(s.getRow(i)[5].getContents());
-				sc.setStr41(s.getRow(i)[6].getContents());
-				sc.setStr42(s.getRow(i)[7].getContents());
-				sc.setStr51(s.getRow(i)[8].getContents());
-				sc.setStr52(s.getRow(i)[9].getContents());
-				sc.setStr61(s.getRow(i)[10].getContents());
-				sc.setStr62(s.getRow(i)[11].getContents());
-				sc.setStr71(s.getRow(i)[12].getContents());
-				sc.setStr72(s.getRow(i)[13].getContents());
-				sc.setStr81(s.getRow(i)[14].getContents());
-				sc.setStr82(s.getRow(i)[15].getContents());
-				sc.setStr91(s.getRow(i)[16].getContents());
-				sc.setStr92(s.getRow(i)[17].getContents());
-				sc.setStr101(s.getRow(i)[18].getContents());
-				sc.setStr102(s.getRow(i)[19].getContents());
-				sc.setStr103(s.getRow(i)[20].getContents());
-				sc.setStrGesamt(s.getRow(i)[21].getContents());
-				
-				System.out.println(sc.toString());
-				
-				scores.add(sc);
-				scoreList.add(sc);
-				sc = new Score();
-			}
-		}
-		anz_scoreList.setListData(getScoreArray(scores));
-	}
-
-	private List<Sheet> toList(Sheet[] sheets) {
-		List<Sheet> list = new ArrayList<Sheet>();
-
-		for (int i = 0; i < sheets.length; i++) {
-			list.add(sheets[i]);
-		}
-		return list;
-	}
-
-	private List<String> toList(String property) {
-		List<String> strings = new ArrayList<String>();
-		StringTokenizer tokenizer = new StringTokenizer(property, "|");
-
-		while (tokenizer.hasMoreElements()) {
-			strings.add((String) tokenizer.nextElement());
-		}
-
-		return strings;
-	}
-
-	private void saveConfig() {
-		Writer fw;
-		Writer bw = null;
-		try {
-			fw = new FileWriter(flcfg);
-			bw = new BufferedWriter(fw);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		String strConfig = "ExcelPfad=" + lbl_Pfad.getText().replace("\\", "\\\\") + "\n" + "NamensListe=" + getString(nameList);
-
-		try {
-			bw.write(strConfig);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				bw.flush();
-				bw.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		System.out.println(strConfig);
 	}
 
 	private String getString(List<String> nameList2) {
