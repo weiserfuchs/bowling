@@ -12,14 +12,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -211,7 +209,7 @@ public class GUI extends JFrame {
 		panel.add(txt_w101);
 		panel.add(txt_w102);
 		panel.add(txt_w103);
-		panel.add(txt_Date);
+//		panel.add(txt_Date);
 
 		anz_panelFile.add(btnAuswaehlen);
 		anz_panelFile.add(lbl_Pfad);
@@ -246,18 +244,18 @@ public class GUI extends JFrame {
 		btnAuswaehlen.setBounds(526, 16, 130, 30);
 
 		btnNameHinzufuegen = new JButton("");
-		btnNameHinzufuegen.setIcon(new ImageIcon(GUI.class.getResource("/ressource/icon_add.png")));
+		btnNameHinzufuegen.setIcon(null);
 		btnNameHinzufuegen.setBounds(116, 16, 40, 30);
 
 		btnAendern = new JButton("Aendern");
 		btnAendern.setBounds(400, 60, 120, 70);
 
 		btnBearbeiten = new JButton("");
-		btnBearbeiten.setIcon(new ImageIcon(GUI.class.getResource("/ressource/edit-icon.png")));
+		btnBearbeiten.setIcon(null);
 		btnBearbeiten.setBounds(166, 16, 40, 30);
 
 		btnNamenLoeschen = new JButton("");
-		btnNamenLoeschen.setIcon(new ImageIcon(GUI.class.getResource("/ressource/icon14.png")));
+		btnNamenLoeschen.setIcon(null);
 		btnNamenLoeschen.setBounds(216, 16, 40, 30);
 
 		btnLoeschen = new JButton("Loeschen");
@@ -704,25 +702,27 @@ public class GUI extends JFrame {
 		txt_w103.setColumns(10);
 		
 		txt_Date = new JTextField();
+		txt_Date.setEnabled(false);
+		txt_Date.setVisible(false);
 		txt_Date.setBackground(new Color(255, 255, 255));
 		txt_Date.setEditable(false);
 		txt_Date.setBounds(690, 5, 126, 30);
 		txt_Date.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				txt_Date.setText(getStringDate());
+//				txt_Date.setText(getStringDate());
 				
 			}
 		});
 		txt_Date.setColumns(10);
 	}
 
-	private String getStringDate() {
-		DateChooser chooser = new DateChooser(this);
+//	private String getStringDate() {
+//		DateChooser chooser = new DateChooser(this);
 //		return chooser.select();
 
-		return DateFormat.getInstance().format(chooser.select()).substring(0, 8);
-	}
+//		return DateFormat.getInstance().format(chooser.select()).substring(0, 8);
+//	}
 
 	private void aendern() {
 		Score selectedScore = anz_scoreList.getSelectedValue();
