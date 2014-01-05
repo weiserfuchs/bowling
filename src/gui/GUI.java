@@ -46,9 +46,12 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
-@SuppressWarnings("serial")
 public class GUI extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 4314194701851509723L;
 	private static final String	XLS				= ".xls";
 	private static final String	GUTTER			= "-";
 	private static final String	SPARE			= "/";
