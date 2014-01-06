@@ -1,6 +1,8 @@
 package gui;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -247,18 +250,22 @@ public class GUI extends JFrame {
 		btnAuswaehlen.setBounds(526, 16, 130, 30);
 
 		btnNameHinzufuegen = new JButton("");
-		btnNameHinzufuegen.setIcon(null);
+		btnNameHinzufuegen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
+		btnNameHinzufuegen.setIcon(new ImageIcon(GUI.class.getResource("/ressource/icon_add.png")));
 		btnNameHinzufuegen.setBounds(116, 16, 40, 30);
 
 		btnAendern = new JButton("Aendern");
 		btnAendern.setBounds(400, 60, 120, 70);
 
 		btnBearbeiten = new JButton("");
-		btnBearbeiten.setIcon(null);
+		btnBearbeiten.setIcon(new ImageIcon(GUI.class.getResource("/ressource/edit-icon.png")));
 		btnBearbeiten.setBounds(166, 16, 40, 30);
 
 		btnNamenLoeschen = new JButton("");
-		btnNamenLoeschen.setIcon(null);
+		btnNamenLoeschen.setIcon(new ImageIcon(GUI.class.getResource("/ressource/icon14.png")));
 		btnNamenLoeschen.setBounds(216, 16, 40, 30);
 
 		btnLoeschen = new JButton("Loeschen");
