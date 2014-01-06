@@ -1076,8 +1076,10 @@ public class GUI extends JFrame {
 				}
 			}
 		}
-		if (excelFile.exists()) {
-			importExcelDoc();
+		if(excelFile != null){
+			if (excelFile.exists()) {
+				importExcelDoc();
+			}
 		}
 	}
 
