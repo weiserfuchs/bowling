@@ -916,6 +916,13 @@ public class GUI extends JFrame {
 		if (wertV2.contains(SPARE) && !wertV1.contains(STRIKE)) {
 			wert1 = (Integer.parseInt(wert1) * 2) + "";
 		}
+		
+		if(wert1.contains(GUTTER)){
+			wert1 = "0";
+		}
+		if(wert2.contains(GUTTER)){
+			wert2 = "0";
+		}
 
 		summe = Integer.parseInt(wert1) + Integer.parseInt(wert2);
 
